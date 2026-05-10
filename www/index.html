@@ -3,8 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self' data: gap: 'unsafe-inline' 'unsafe-eval'; media-src *;" />
     <title>Block Dodge</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -13,7 +11,7 @@
       <div id="startScreen">
         <h1>Block Dodge</h1>
         <p>Avoid the falling blocks</p>
-        <button onclick="startGame()">Start Game</button>
+        <button id="startBtn">Start Game</button>
       </div>
       <div id="player"></div>
       <div id="score">Score: 0</div>
@@ -22,7 +20,7 @@
         <h1>Game Over</h1>
         <h2 id="finalScore">Score: 0</h2>
         <h2 id="finalHighScore">High Score: 0</h2>
-        <button onclick="restartGame()">Restart</button>
+        <button id="restartBtn">Restart</button>
       </div>
     </div>
     <script src="script.js"></script>
