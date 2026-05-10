@@ -43,8 +43,22 @@ jobs:
       - name: Add Android platform
         run: cordova platform add android@13.0.0
 
-      - name: Copy build-extras.gradle to fix appcompat bug
-        run: cp extras/android/build-extras.gradle platforms/android/app/build-extras.gradle
+      - name: Patch broken appcompat-1.6.1 color resource
+        run: |
+          FILE=$(find $HOME/.gradle/caches -path "*/appcompat-1.6.1/res/values/values.xml" 2>/dev/null | head -1)
+          if [ -n "$FILE" ]; then
+            echo "Patching: $FILE"
+            # Replace the broken ?attr/colorPrimary color reference with a plain hex value
+            sed -i 's|<color name="abc_tint_default">?attr/colorPrimary</color>|<color name="abc_tint_default">#FF6200EE</color>|g' "$FILE"
+            sed -i 's|<color name="[^"]*">?attr/[^<]*</color>|<!-- removed invalid attr color ref -->|g' "$FILE"
+            echo "Patch applied."
+          else
+            echo "appcompat file not found in gradle cache, searching wider..."
+            find $HOME/.gradle -name "values.xml" | xargs grep -l "?attr/colorPrimary" 2>/dev/null | while read f; do
+              echo "Patching $f"
+              sed -i 's|<color name="[^"]*">?attr/[^<]*</color>|<!-- removed invalid attr color ref -->|g' "$f"
+            done
+          fi
 
       - name: Build debug APK
         run: cordova build android
