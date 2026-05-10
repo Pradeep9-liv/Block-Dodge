@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -25,13 +25,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4.4.0
         with:
-          node-version: '24'
+          node-version: '20'
 
-      - name: Install Android SDK build tools
+      - name: Install Android SDK build tools 33
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-            "platforms;android-34" \
-            "build-tools;34.0.0" \
+            "platforms;android-33" \
+            "build-tools;33.0.2" \
             "platform-tools"
 
       - name: Install Cordova 13
