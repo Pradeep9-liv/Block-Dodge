@@ -37,18 +37,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli
-
       - name: Add Android platform
         run: npx cap add android
 
-      - name: Sync web assets
-        run: npx cap sync android
+      - name: Copy www files into Android project
+        run: npx cap copy android
+
+      - name: Verify www files are in Android assets
+        run: |
+          echo "=== Checking assets ==="
+          ls android/app/src/main/assets/public/ || echo "WARNING: public folder missing!"
+          cat android/app/src/main/assets/public/index.html | head -20 || echo "WARNING: index.html missing!"
 
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4.6.2
