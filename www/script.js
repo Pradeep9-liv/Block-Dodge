@@ -1,12 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+  // Elements
   const startScreen    = document.getElementById("startScreen");
   const gameArea       = document.getElementById("gameArea");
   const player         = document.getElementById("player");
   const scoreText      = document.getElementById("score");
   const highScoreText  = document.getElementById("highScore");
   const gameOverScreen = document.getElementById("gameOver");
-  const finalScore     = document.getElementById("finalScore");
-  const finalHighScore = document.getElementById("finalHighScore");
+  const finalScoreEl   = document.getElementById("finalScore");
+  const finalHighEl    = document.getElementById("finalHighScore");
+  const startBtn       = document.getElementById("startBtn");
+  const restartBtn     = document.getElementById("restartBtn");
+
+  // Button listeners (works on mobile, no onclick needed)
+  startBtn.addEventListener("click",   startGame);
+  startBtn.addEventListener("touchend", function(e) { e.preventDefault(); startGame(); });
+  restartBtn.addEventListener("click",   function() { location.reload(); });
+  restartBtn.addEventListener("touchend", function(e) { e.preventDefault(); location.reload(); });
 
   // Audio (silent fallback if files missing)
   function makeSound(src, vol) {
@@ -31,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
   highScoreText.innerText = "High Score: " + highScore;
   player.style.left = (window.innerWidth / 2 - 30) + "px";
 
-  // Controls
+  // Touch / mouse controls on game area
   gameArea.addEventListener("mousedown",  () => isDragging = true);
   gameArea.addEventListener("mouseup",    () => isDragging = false);
   gameArea.addEventListener("mouseleave", () => isDragging = false);
@@ -39,9 +49,18 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isDragging || !gameRunning) return;
     movePlayer(e.clientX, e.clientY);
   });
-  gameArea.addEventListener("touchstart", (e) => { e.preventDefault(); isDragging = true; }, { passive: false });
-  gameArea.addEventListener("touchend",   (e) => { e.preventDefault(); isDragging = false; }, { passive: false });
-  gameArea.addEventListener("touchmove",  (e) => {
+  gameArea.addEventListener("touchstart", (e) => {
+    // Only drag if not tapping a button
+    if (e.target === startBtn || e.target === restartBtn) return;
+    e.preventDefault();
+    isDragging = true;
+  }, { passive: false });
+  gameArea.addEventListener("touchend", (e) => {
+    if (e.target === startBtn || e.target === restartBtn) return;
+    e.preventDefault();
+    isDragging = false;
+  }, { passive: false });
+  gameArea.addEventListener("touchmove", (e) => {
     e.preventDefault();
     if (!isDragging || !gameRunning) return;
     movePlayer(e.touches[0].clientX, e.touches[0].clientY);
@@ -103,16 +122,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function endGame() {
     gameRunning = false;
-    finalScore.innerText     = "Score: " + score;
-    finalHighScore.innerText = "High Score: " + highScore;
+    finalScoreEl.innerText = "Score: " + score;
+    finalHighEl.innerText  = "High Score: " + highScore;
     gameOverScreen.style.display = "flex";
   }
 
-  window.restartGame = () => location.reload();
-  window.startGame   = () => {
+  function startGame() {
     try { startSound.play(); } catch(e) {}
     gameRunning = true;
     startScreen.style.display = "none";
     obstacleSpawner();
-  };
+  }
+
 });
