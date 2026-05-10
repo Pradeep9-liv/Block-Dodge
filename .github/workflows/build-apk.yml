@@ -27,6 +27,11 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
       - name: Install Cordova
         run: npm install -g cordova
 
