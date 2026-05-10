@@ -1,0 +1,288 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #111111;
+  font-family: Arial, sans-serif;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+#gameArea {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: linear-gradient(-45deg, #111, #333, #000, #1a1a1a);
+
+  background-size: 400% 400%;
+
+  animation: bgAnimation 10s ease infinite;
+}
+
+#player {
+  width: 60px;
+  height: 60px;
+
+  background: cyan;
+
+  position: absolute;
+
+  top: 80%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 0 10px cyan,
+    0 0 20px cyan,
+    0 0 40px cyan;
+
+  transition: left 0.02s linear;
+}
+
+.obstacle {
+  width: 60px;
+  height: 60px;
+
+  background: red;
+
+  position: absolute;
+
+  top: -60px;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 0 10px red,
+    0 0 20px red;
+
+  animation: obstaclePulse 0.8s infinite alternate;
+  z-index: 1;
+}
+
+#score {
+  color: white;
+  font-size: 28px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 50;
+}
+
+#highScore {
+  color: gold;
+
+  font-size: 24px;
+
+  position: absolute;
+
+  top: 60px;
+  left: 20px;
+
+  text-shadow: 0 0 10px gold;
+  z-index: 50;
+}
+
+#gameOver {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+
+  flex-direction: column;
+
+  background: rgba(0, 0, 0, 0.7);
+
+  backdrop-filter: blur(8px);
+
+  z-index: 999;
+
+  color: white;
+
+  text-align: center;
+}
+
+#gameOver h1 {
+  font-size: 70px;
+
+  color: red;
+
+  text-shadow:
+    0 0 10px red,
+    0 0 20px red;
+
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 12px 24px;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: cyan;
+
+  color: black;
+
+  font-weight: bold;
+
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.1);
+
+  box-shadow:
+    0 0 10px cyan,
+    0 0 20px cyan;
+}
+
+@keyframes obstaclePulse {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes bgAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+#startScreen {
+  position: absolute;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(49, 46, 46, 0.92);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  z-index: 100;
+}
+
+#startScreen h1 {
+  color: cyan;
+
+  font-size: 70px;
+
+  margin-bottom: 10px;
+
+  text-shadow:
+    0 0 10px cyan,
+    0 0 20px cyan;
+}
+
+#startScreen p {
+  color: white;
+
+  font-size: 22px;
+
+  margin-bottom: 30px;
+}
+
+#startScreen button {
+  padding: 15px 35px;
+
+  font-size: 24px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: cyan;
+
+  color: black;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+#startScreen button:hover {
+  transform: scale(1.1);
+
+  box-shadow:
+    0 0 10px cyan,
+    0 0 20px cyan;
+}
+
+@media (max-width: 768px) {
+  #player,
+  .obstacle {
+    width: 45px;
+    height: 45px;
+  }
+
+  #score {
+    font-size: 22px;
+  }
+
+  #highScore {
+    font-size: 18px;
+
+    top: 50px;
+  }
+
+  #startScreen h1 {
+    font-size: 50px;
+  }
+
+  #startScreen p {
+    font-size: 18px;
+  }
+
+  #gameOver h1 {
+    font-size: 50px;
+  }
+
+  button {
+    font-size: 18px;
+
+    padding: 12px 24px;
+  }
+}
+
+#gameOver h2 {
+  margin: 8px;
+
+  font-size: 28px;
+
+  color: green;
+}
