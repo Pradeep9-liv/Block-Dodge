@@ -1,0 +1,6 @@
+// Force newer appcompat to fix color resource compile bug in 1.6.1
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.appcompat:appcompat:1.7.0'
+    }
+}
