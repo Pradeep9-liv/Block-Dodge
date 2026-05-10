@@ -43,22 +43,19 @@ jobs:
       - name: Add Android platform
         run: cordova platform add android@13.0.0
 
-      - name: Patch broken appcompat-1.6.1 color resource
+      - name: Patch broken appcompat color resource
         run: |
-          FILE=$(find $HOME/.gradle/caches -path "*/appcompat-1.6.1/res/values/values.xml" 2>/dev/null | head -1)
-          if [ -n "$FILE" ]; then
-            echo "Patching: $FILE"
-            # Replace the broken ?attr/colorPrimary color reference with a plain hex value
-            sed -i 's|<color name="abc_tint_default">?attr/colorPrimary</color>|<color name="abc_tint_default">#FF6200EE</color>|g' "$FILE"
-            sed -i 's|<color name="[^"]*">?attr/[^<]*</color>|<!-- removed invalid attr color ref -->|g' "$FILE"
-            echo "Patch applied."
-          else
-            echo "appcompat file not found in gradle cache, searching wider..."
-            find $HOME/.gradle -name "values.xml" | xargs grep -l "?attr/colorPrimary" 2>/dev/null | while read f; do
-              echo "Patching $f"
-              sed -i 's|<color name="[^"]*">?attr/[^<]*</color>|<!-- removed invalid attr color ref -->|g' "$f"
-            done
-          fi
+          echo "Searching for broken appcompat values.xml..."
+          find $HOME/.gradle/caches -name "values.xml" 2>/dev/null | while read f; do
+            if grep -q '?attr/' "$f" 2>/dev/null; then
+              echo "Found and patching: $f"
+              # Remove any <color> tag that uses ?attr/ references (invalid in resource compiler)
+              perl -i -pe 's|<color name="[^"]*">\?attr/[^<]*</color>\n?||g' "$f"
+              sed -i '/?attr\//d' "$f"
+              echo "Done patching $f"
+            fi
+          done
+          echo "Patch step complete."
 
       - name: Build debug APK
         run: cordova build android
