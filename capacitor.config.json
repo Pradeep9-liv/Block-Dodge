@@ -1,0 +1,9 @@
+{
+  "appId": "com.yourname.blockdodge",
+  "appName": "Block Dodge",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#111111"
+  }
+}
