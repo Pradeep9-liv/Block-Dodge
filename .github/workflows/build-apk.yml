@@ -27,42 +27,32 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Android SDK build tools
+      - name: Install Android SDK
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "platforms;android-34" \
             "build-tools;34.0.0" \
             "platform-tools"
 
-      - name: Install Cordova 13
-        run: npm install -g cordova@13.0.0
-
-      - name: Install project dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Add Android platform
-        run: cordova platform add android@13.0.0
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli
 
-      - name: Patch broken appcompat color resource
-        run: |
-          echo "Searching for broken appcompat values.xml..."
-          find $HOME/.gradle/caches -name "values.xml" 2>/dev/null | while read f; do
-            if grep -q '?attr/' "$f" 2>/dev/null; then
-              echo "Found and patching: $f"
-              # Remove any <color> tag that uses ?attr/ references (invalid in resource compiler)
-              perl -i -pe 's|<color name="[^"]*">\?attr/[^<]*</color>\n?||g' "$f"
-              sed -i '/?attr\//d' "$f"
-              echo "Done patching $f"
-            fi
-          done
-          echo "Patch step complete."
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync web assets
+        run: npx cap sync android
 
       - name: Build debug APK
-        run: cordova build android
+        working-directory: android
+        run: ./gradlew assembleDebug
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4.6.2
         with:
           name: BlockDodge-debug-apk
-          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
