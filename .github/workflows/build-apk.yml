@@ -27,19 +27,21 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
+      - name: Install Android SDK build tools
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "platform-tools"
 
-      - name: Install Cordova
-        run: npm install -g cordova
+      - name: Install Cordova 13
+        run: npm install -g cordova@13.0.0
 
       - name: Install project dependencies
         run: npm install
 
       - name: Add Android platform
-        run: cordova platform add android
+        run: cordova platform add android@13.0.0
 
       - name: Build debug APK
         run: cordova build android
