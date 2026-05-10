@@ -1,0 +1,27 @@
+{
+  "name": "block-dodge",
+  "displayName": "Block Dodge",
+  "version": "1.0.0",
+  "description": "Dodge the falling blocks!",
+  "main": "index.js",
+  "scripts": {
+    "build": "cordova build android",
+    "build-release": "cordova build android --release",
+    "run": "cordova run android"
+  },
+  "dependencies": {
+    "cordova-android": "^12.0.0",
+    "cordova-plugin-whitelist": "^1.3.4"
+  },
+  "devDependencies": {
+    "cordova": "^12.0.0"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {}
+    },
+    "platforms": [
+      "android"
+    ]
+  }
+}
