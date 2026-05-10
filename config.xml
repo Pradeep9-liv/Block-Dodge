@@ -25,10 +25,7 @@
   <!-- Cordova splash/icon hooks -->
   <platform name="android">
     <allow-intent href="market:*" />
-    <!-- Icons (replace with real PNGs when ready) -->
-    <icon src="res/icon/android/icon-96.png"  density="xhdpi" />
-    <icon src="res/icon/android/icon-144.png" density="xxhdpi" />
-    <icon src="res/icon/android/icon-192.png" density="xxxhdpi" />
+    
   </platform>
 
 </widget>
