@@ -31,21 +31,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // State
+  // ── State ─────────────────────────────────────────────────────────────
   let score           = 0;
   let highScore       = parseInt(localStorage.getItem("blockDodgeHighScore") || "0", 10);
-  let obstacleSpeed   = 3;
-  const maxSpeed      = 10;
-  let spawnRate       = 1000;
-  let obstacleCount   = 1;
+  let obstacleSpeed   = 4;       // start a bit faster
+  const maxSpeed      = 14;      // higher top speed for more thrill
+  let spawnRate       = 800;     // faster spawn from the start
+  let obstacleCount   = 2;       // start with 2 blocks right away
   let activeObstacles = 0;
   let gameRunning     = false;
   let gamePaused      = false;
   let isDragging      = false;
-  let spawnerTimeout  = null;         // single reference so we never double-spawn
-  const activeIntervals = new Set();  // track every obstacle interval
+  let spawnerTimeout  = null;
+  const activeIntervals = new Set();
 
-  // Pause overlay
+  // ── Pause overlay ─────────────────────────────────────────────────────
   const pauseOverlay = document.createElement("div");
   pauseOverlay.innerHTML = "<h2>Paused</h2><p>Return to the game to continue</p>";
   pauseOverlay.style.cssText = `
@@ -61,12 +61,20 @@ document.addEventListener("DOMContentLoaded", function () {
   highScoreText.innerText = "High Score: " + highScore;
   player.style.left = (window.innerWidth / 2 - 30) + "px";
 
-  // ── Clear ALL obstacles from DOM and kill all their intervals ─────────
+  // ── Max blocks: fills screen with thrilling density but always 2 gaps ─
+  function maxAllowedObstacles() {
+    const blockW     = 65;
+    const slotsInRow = Math.floor(window.innerWidth / blockW);
+    // Allow up to (slots - 2) blocks across — always 2 escape gaps
+    // Also allow multiple rows worth for more chaos as score climbs
+    const rows = score < 20 ? 1 : score < 50 ? 2 : 3;
+    return Math.max(3, (slotsInRow - 2) * rows);
+  }
+
+  // ── Clear all obstacles ───────────────────────────────────────────────
   function clearAllObstacles() {
-    // kill every tracked interval
     activeIntervals.forEach(iv => clearInterval(iv));
     activeIntervals.clear();
-    // remove every obstacle element from DOM
     document.querySelectorAll(".obstacle").forEach(o => o.remove());
     activeObstacles = 0;
   }
@@ -77,9 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     gamePaused  = true;
     gameRunning = false;
     stopAllSounds();
-    // Kill spawner timer
     if (spawnerTimeout) { clearTimeout(spawnerTimeout); spawnerTimeout = null; }
-    // Kill & remove all obstacle intervals + DOM elements
     clearAllObstacles();
     pauseOverlay.style.display = "flex";
   }
@@ -89,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     gamePaused  = false;
     gameRunning = true;
     pauseOverlay.style.display = "none";
-    obstacleSpawner();   // fresh start — no ghost blocks
+    obstacleSpawner();
   }
 
   document.addEventListener("visibilitychange", function () {
@@ -128,39 +134,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ── Obstacles ─────────────────────────────────────────────────────────
-
-  // Max blocks allowed on screen at once — never more than fit in a row minus 1 gap
-  function maxAllowedObstacles() {
-    const blockW   = 65;  // block width + gap
-    const slotsInRow = Math.floor(window.innerWidth / blockW);
-    // Never fill the whole row — leave at least 1.5 block gaps to dodge through
-    return Math.max(1, slotsInRow - 2);
-  }
-
   function createObstacle() {
     if (!gameRunning) return;
 
     const cap = maxAllowedObstacles();
-    if (activeObstacles >= cap) return;   // hard cap — never cover full row
+    if (activeObstacles >= cap) return;
 
-    const obs = document.createElement("div");
+    const obs     = document.createElement("div");
     obs.classList.add("obstacle");
 
-    // Place blocks on a grid so they never perfectly overlap or block full row
-    const blockW    = 60;
-    const slots     = Math.floor(window.innerWidth / (blockW + 5));
-    const slot      = Math.floor(Math.random() * slots);
-    obs.style.left  = (slot * (blockW + 5)) + "px";
+    // Random X — fully random so blocks feel unpredictable
+    obs.style.left = Math.floor(Math.random() * (window.innerWidth - 62)) + "px";
 
     gameArea.appendChild(obs);
     activeObstacles++;
 
     let oy = -60;
     const iv = setInterval(() => {
-      if (!gameRunning) {
-        // game paused/ended: interval will be cleared by clearAllObstacles()
-        return;
-      }
+      if (!gameRunning) return;
       oy += obstacleSpeed;
       obs.style.top = oy + "px";
 
@@ -192,12 +183,13 @@ document.addEventListener("DOMContentLoaded", function () {
           localStorage.setItem("blockDodgeHighScore", highScore);
           highScoreText.innerText = "High Score: " + highScore;
         }
-        // Ramp difficulty — but cap obstacleCount so full-row jam is impossible
-        if (score % 10 === 0) {
-          if (obstacleSpeed < maxSpeed) obstacleSpeed++;
-          if (spawnRate > 700) spawnRate -= 50;
-          const maxCount = Math.max(1, maxAllowedObstacles() - 1);
-          if (obstacleCount < maxCount) obstacleCount++;
+
+        // Ramp every 5 points (was 10) for faster difficulty increase
+        if (score % 5 === 0) {
+          if (obstacleSpeed < maxSpeed) obstacleSpeed += 1;
+          if (spawnRate > 400) spawnRate -= 40;  // spawn down to 400ms
+          const maxCount = maxAllowedObstacles();
+          if (obstacleCount < maxCount) obstacleCount += 1;
         }
       }
     }, 20);
