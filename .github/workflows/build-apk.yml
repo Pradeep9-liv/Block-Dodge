@@ -43,25 +43,55 @@ jobs:
       - name: Copy web assets
         run: npx cap copy android
 
-      - name: Copy app icons into Android mipmap folders
+      - name: Force install custom icons (runs AFTER cap copy so nothing overwrites them)
         run: |
           MIPMAP=android/app/src/main/res
-          mkdir -p $MIPMAP/mipmap-mdpi
-          mkdir -p $MIPMAP/mipmap-hdpi
-          mkdir -p $MIPMAP/mipmap-xhdpi
-          mkdir -p $MIPMAP/mipmap-xxhdpi
-          mkdir -p $MIPMAP/mipmap-xxxhdpi
-          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-xhdpi/ic_launcher.png
-          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-xhdpi/ic_launcher_round.png
+
+          # Replace every mipmap size
+          for dir in mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
+            mkdir -p $MIPMAP/$dir
+          done
+
           cp res/icon/android/icon-96.png  $MIPMAP/mipmap-mdpi/ic_launcher.png
           cp res/icon/android/icon-96.png  $MIPMAP/mipmap-mdpi/ic_launcher_round.png
-          cp res/icon/android/icon-144.png $MIPMAP/mipmap-xxhdpi/ic_launcher.png
-          cp res/icon/android/icon-144.png $MIPMAP/mipmap-xxhdpi/ic_launcher_round.png
-          cp res/icon/android/icon-192.png $MIPMAP/mipmap-xxxhdpi/ic_launcher.png
-          cp res/icon/android/icon-192.png $MIPMAP/mipmap-xxxhdpi/ic_launcher_round.png
+          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-mdpi/ic_launcher_foreground.png
           cp res/icon/android/icon-96.png  $MIPMAP/mipmap-hdpi/ic_launcher.png
           cp res/icon/android/icon-96.png  $MIPMAP/mipmap-hdpi/ic_launcher_round.png
-          echo "Icons copied!"
+          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-hdpi/ic_launcher_foreground.png
+          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-xhdpi/ic_launcher.png
+          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-xhdpi/ic_launcher_round.png
+          cp res/icon/android/icon-96.png  $MIPMAP/mipmap-xhdpi/ic_launcher_foreground.png
+          cp res/icon/android/icon-144.png $MIPMAP/mipmap-xxhdpi/ic_launcher.png
+          cp res/icon/android/icon-144.png $MIPMAP/mipmap-xxhdpi/ic_launcher_round.png
+          cp res/icon/android/icon-144.png $MIPMAP/mipmap-xxhdpi/ic_launcher_foreground.png
+          cp res/icon/android/icon-192.png $MIPMAP/mipmap-xxxhdpi/ic_launcher.png
+          cp res/icon/android/icon-192.png $MIPMAP/mipmap-xxxhdpi/ic_launcher_round.png
+          cp res/icon/android/icon-192.png $MIPMAP/mipmap-xxxhdpi/ic_launcher_foreground.png
+
+          # Replace adaptive icon XMLs so Android uses our PNG directly, not a generated layer
+          for dir in mipmap-anydpi-v26 mipmap-anydpi; do
+            mkdir -p $MIPMAP/$dir
+            cat > $MIPMAP/$dir/ic_launcher.xml << 'XMLEOF'
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+XMLEOF
+            cp $MIPMAP/$dir/ic_launcher.xml $MIPMAP/$dir/ic_launcher_round.xml
+          done
+
+          # Set background color to match icon
+          mkdir -p $MIPMAP/../values
+          cat > $MIPMAP/../values/ic_launcher_background.xml << 'XMLEOF'
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#111111</color>
+</resources>
+XMLEOF
+
+          echo "All icons installed!"
+          ls -la $MIPMAP/mipmap-xxxhdpi/
 
       - name: Build debug APK
         working-directory: android
